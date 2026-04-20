@@ -1,0 +1,73 @@
+========================================================================
+             INSTRUCCIONES DE USO - PROGRAMA DE GRADIENTES
+========================================================================
+
+Este programa permite generar diversas imágenes con efectos de degradado
+(gradientes) de manera automática. Las imágenes se guardan en formato JPG
+dentro de la carpeta 'images'.
+
+------------------------------------------------------------------------
+1. REQUISITOS PREVIOS
+------------------------------------------------------------------------
+* Tener instalado el Java Development Kit (JDK) versión 8 o superior.
+* Acceso a una terminal o consola de comandos.
+
+------------------------------------------------------------------------
+2. COMPILACIÓN
+------------------------------------------------------------------------
+Para compilar el programa, situarse en la carpeta raíz del proyecto y
+ejecutar el siguiente comando:
+
+    javac src/Gradientes.java -d out
+
+(Esto generará los archivos compilados en la carpeta 'out')
+
+------------------------------------------------------------------------
+3. EJECUCIÓN
+------------------------------------------------------------------------
+Una vez compilado, ejecutar el programa con el siguiente comando:
+
+    java -cp out Gradientes
+
+------------------------------------------------------------------------
+4. MENÚ DE OPCIONES
+------------------------------------------------------------------------
+Al iniciar, el programa mostrará un menú interactivo. Ingrese el número 
+de la opción deseada y presione Enter:
+
+1. Izquierda a Derecha:
+   Genera un gradiente de negro a blanco horizontalmente.
+   Archivo: 'images/1_izq_der.jpg'
+
+2. Derecha a Izquierda (Rojo a Azul):
+   Genera un gradiente que pasa de azul (izquierda) a rojo (derecha).
+   Archivo: 'images/2_der_izq_rojo_azul.jpg'
+
+3. Arriba a Abajo:
+   Genera un gradiente vertical con tonos azulados.
+   Archivo: 'images/3_arr_aba.jpg'
+
+4. Abajo a Arriba:
+   Genera un gradiente vertical con tonos naranjas/amarillos.
+   Archivo: 'images/4_aba_arr.jpg'
+
+5. Radial (Centro a Esquinas):
+   Genera un gradiente circular desde el centro hacia los bordes.
+   Archivo: 'images/5_radial.jpg'
+
+6. GENERAR TODOS:
+   Ejecuta todas las opciones anteriores de una sola vez.
+
+0. Salir:
+   Cierra el programa.
+
+------------------------------------------------------------------------
+5. NOTAS ADICIONALES
+------------------------------------------------------------------------
+* El programa crea automáticamente la carpeta 'images' si no existe.
+* Las dimensiones por defecto de las imágenes son 900x500 píxeles.
+* Se recomienda revisar los archivos generados con cualquier visor de imágenes estándar.
+
+========================================================================
+Desarrollado para el Taller de Computación Gráfica
+========================================================================
