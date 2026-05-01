@@ -47,8 +47,9 @@ public class ejemploClase {
     }
 
     public static void main(String[] args) {
-        String rutaEntrada = "C:\\Users\\fing.labcom\\Pictures\\Taller2\\images\\manu.jpg";
-        String rutaSalida = "C:\\Users\\fing.labcom\\Pictures\\Taller2\\images\\manu2.jpg";
+        String rutaEntrada = "images\\manu.jpg";
+        String rutaSalida = "images\\manu2.jpg";
         ejemplo(rutaEntrada, rutaSalida);
+        
     }
 }

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoNav | Motor Gráfico</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0d0f16;
+            --glass-bg: rgba(20, 22, 30, 0.5);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --primary: #00f2fe;
+            --primary-gradient: linear-gradient(45deg, #00f2fe, #4facfe);
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(0, 242, 254, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(79, 172, 254, 0.08), transparent 25%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .neo-nav {
+            position: fixed;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 17, 26, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: var(--glass-border);
+            border-radius: 50px;
+            padding: 8px 12px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-btn.active {
+            background: var(--primary-gradient);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* --- Main Container --- */
+        .container {
+            max-width: 1200px;
+            margin: 215px auto 40px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Filter Grid --- */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: var(--glass-border);
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+        }
+
+        .filter-card .material-icons {
+            font-size: 32px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .filter-card span.label {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .filter-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-card:hover .material-icons {
+            opacity: 1;
+            transform: scale(1.1);
+            color: var(--primary);
+        }
+
+        .filter-card.selected {
+            background: rgba(0, 242, 254, 0.08);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+        }
+
+        .filter-card.selected .material-icons {
+            opacity: 1;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        /* --- Controls Section --- */
+        .action-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: flex-end;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 800;
+        }
+
+        .input-group.oculto {
+            display: none;
+        }
+
+        input[type="file"],
+        input[type="number"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Outfit';
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .btn-render {
+            background: var(--primary-gradient);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Outfit';
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 52px;
+        }
+
+        .btn-render:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-render:active {
+            transform: scale(0.95);
+        }
+
+        .btn-download {
+            background: linear-gradient(45deg, #00c853, #69f0ae);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1rem;
+            font-family: 'Outfit';
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4);
+        }
+
+        .btn-download:active {
+            transform: scale(0.95);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            transition: all 0.4s ease;
+        }
+
+        .workspace.modo-generador {
+            grid-template-columns: 1fr;
+        }
+
+        .workspace.modo-generador #panelSource {
+            display: none;
+        }
+
+        .action-bar.modo-generador #grupoImagen {
+            display: none;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .panel h2 {
+            margin: 0 0 20px 0;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .image-box {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            display: none;
+            object-fit: contain;
+        }
+
+        .spinner-wrapper {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            color: var(--primary);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 242, 254, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- Toast Notifications --- */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: rgba(15, 17, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--primary);
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.95rem;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left-color: #ff4d4d;
+        }
+
+        .toast.error .material-icons {
+            color: #ff4d4d;
+        }
+
+        .toast.success {
+            border-left-color: #00f2fe;
+        }
+
+        .toast.success .material-icons {
+            color: #00f2fe;
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .neo-nav {
+                width: 90%;
+                justify-content: space-between;
+                overflow-x: auto;
+            }
+
+            .toast-container {
+                right: 20px;
+                left: 20px;
+                bottom: 20px;
+            }
+        }
+
+        /* --- App Header Institucional --- */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            background: rgba(10, 12, 20, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.12);
+            padding: 12px 40px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .app-header img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            display: block;
+            border-radius: 0;
+            box-shadow: none;
+            max-height: unset;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 242, 254, 0.4), transparent);
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-uni {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-tag {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 20px;
+            padding: 2px 10px;
+        }
+
+        .header-spacer {
+            flex: 1;
+        }
+
+        .header-team {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .header-team-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 800;
+        }
+
+        .header-names {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 20px;
+            padding: 3px 12px;
+        }
+
+        .header-name.placeholder {
+            color: var(--text-muted);
+            border-color: rgba(255, 255, 255, 0.1);
+            background: transparent;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Institucional -->
+    <header class="app-header">
+        <img src="/logo/uce.png" alt="Logo UCE">
+        <div class="header-divider"></div>
+        <div class="header-info">
+            <span class="header-uni">Universidad Central del Ecuador</span>
+            <div class="header-meta">
+                <span class="header-tag">Taller 2</span>
+                <span class="header-tag">Trabajo Grupal</span>
+            </div>
+        </div>
+        <div class="header-spacer"></div>
+        <div class="header-team">
+            <span class="header-team-label">Equipo</span>
+            <div class="header-names">
+                <span class="header-name">Bryan Loya</span>
+                <span class="header-name">Gemini 3.1 Pro</span>
+                <span class="header-name">Claude Sonnet 4.5</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="neo-nav">
+        <button class="nav-btn active" onclick="cambiarCategoria('basicos', this)">
+            <span class="material-icons">palette</span> Básicos
+        </button>
+        <button class="nav-btn" onclick="cambiarCategoria('retro', this)">
+            <span class="material-icons">camera_roll</span> Retro
+        </button>
+        <button class="nav-btn" onclick="cambiarCategoria('espaciales', this)">
+            <span class="material-icons">grid_4x4</span> Espaciales
+        </button>
+        <button class="nav-btn" onclick="cambiarCategoria('generadores', this)">
+            <span class="material-icons">blur_on</span> Generadores
+        </button>
+    </nav>
+
+    <div class="container">
+        <div id="filterGrid" class="filter-grid"></div>
+
+        <div class="action-bar">
+            <div class="input-group" id="grupoImagen">
+                <label>1. Buffer de Imagen</label>
+                <input type="file" id="inputFoto" accept="image/*">
+            </div>
+
+            <div class="input-group oculto" id="grupoParametro">
+                <label id="lblParametro">2. Parámetro</label>
+                <input type="number" id="inputParametro" step="1">
+            </div>
+
+            <button class="btn-render" id="btnProcesar">
+                <span class="material-icons">auto_fix_high</span> RENDERIZAR
+            </button>
+        </div>
+
+        <div class="workspace">
+            <div class="panel" id="panelSource">
+                <h2>Source Image</h2>
+                <div class="image-box">
+                    <img id="imgOriginal" src="">
+                </div>
+            </div>
+            <div class="panel">
+                <h2>Output Render</h2>
+                <div class="image-box">
+                    <div class="spinner-wrapper" id="loading">
+                        <div class="spinner"></div>
+                        <div>Procesando Kernel...</div>
+                    </div>
+                    <img id="imgResultado" src="">
+                </div>
+                <button class="btn-download" id="btnDescargar" style="display:none;">
+                    <span class="material-icons">download</span> DESCARGAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const dataFiltros = {
+            basicos: [
+                { id: "NINGUNO", name: "Original", icon: "image" },
+                { id: "ESCALA_GRISES", name: "Grises Clásica", icon: "monochrome_photos" },
+                { id: "BLANCO_Y_NEGRO", name: "Blanco y Negro", icon: "tonality" },
+                { id: "NEGATIVO", name: "Negativo", icon: "invert_colors" },
+                { id: "BRILLO", name: "Offset Brillo", icon: "brightness_6" },
+                { id: "SATURACION", name: "Saturación", icon: "gradient" },
+                { id: "TRANSPARENCIA", name: "Transparencia", icon: "opacity" },
+                { id: "RECORTE_BITS", name: "Recorte + Estirar", icon: "memory" },
+                { id: "SOLO_RECORTE", name: "Solo Recorte (Sin Estirar)", icon: "content_cut" },
+                { id: "TINTE_OCRE", name: "Tinte Ocre", icon: "filter_vintage" }
+            ],
+            retro: [
+                { id: "VIDRIO_ESMERILADO", name: "Esmerilado", icon: "blur_on" },
+                { id: "DESVANECIMIENTO_CIRCULAR", name: "Desvanecimiento", icon: "blur_circular" },
+                { id: "RETRO_POSTERIZACION", name: "Posterización", icon: "photo_filter" },
+                { id: "RETRO_2_R", name: "Retro 2 (Sin Rojo)", icon: "art_track" },
+                { id: "RETRO_2_G", name: "Retro 2 (Sin Verde)", icon: "art_track" },
+                { id: "RETRO_2_B", name: "Retro 2 (Sin Azul)", icon: "art_track" },
+                { id: "RETRO_ANULAR_R", name: "Anular Rojo Puro", icon: "format_color_reset" },
+                { id: "RETRO_ANULAR_G", name: "Anular Verde Puro", icon: "format_color_reset" },
+                { id: "RETRO_ANULAR_B", name: "Anular Azul Puro", icon: "format_color_reset" },
+                { id: "GRISES_RETRO", name: "Grises Retro", icon: "grain" },
+                { id: "DIVIDIDO_3", name: "RGB 3 Tercios", icon: "view_column" },
+                { id: "ESPEJO", name: "Efecto Espejo", icon: "flip" },
+                { id: "VERDE_GRIS", name: "Resaltar Verde", icon: "nature" }
+            ],
+            espaciales: [
+                { id: "IDENTITY", name: "Identity (Normal)", icon: "image" },
+                { id: "EDGE_1", name: "Edge Detection 1", icon: "broken_image" },
+                { id: "EDGE_2", name: "Edge Detection 2", icon: "broken_image" },
+                { id: "EDGE_3", name: "Edge Detection 3", icon: "broken_image" },
+                { id: "SHARPEN_WIKI", name: "Sharpen (Fijo 3x3)", icon: "details" },
+                { id: "BOX_BLUR_WIKI", name: "Box Blur (Fijo 3x3)", icon: "blur_linear" },
+                { id: "BOX_BLUR", name: "Box Blur (Dinámico NxN)", icon: "blur_circular" },
+                { id: "GAUSSIAN_BLUR", name: "Gaussian Blur", icon: "blur_on" }
+            ],
+            generadores: [
+                { id: "GEN_GRAD_HORIZ", name: "Grad Horizontal", icon: "linear_scale" },
+                { id: "GEN_GRAD_HORIZ_INV", name: "Grad Rojo-Azul", icon: "linear_scale" },
+                { id: "GEN_GRAD_VERT", name: "Grad Vertical", icon: "swap_vert" },
+                { id: "GEN_GRAD_VERT_INV", name: "Grad Inverso", icon: "swap_vert" },
+                { id: "GEN_GRAD_RADIAL", name: "Grad Radial", icon: "radio_button_unchecked" },
+                { id: "GEN_RUIDO", name: "Ruido RGB", icon: "tv" }
+            ]
+        };
+
+        const reglasValidacion = {
+            "TRANSPARENCIA": { min: 0.0, max: 1.0, step: 0.1, def: 0.5, label: "2. Nivel Transp (0.0 - 1.0)" },
+            "BRILLO": { min: -255, max: 255, step: 1, def: 50, label: "2. Brillo Offset (-255 a 255)" },
+            "SATURACION": { min: 0.0, max: 5.0, step: 0.1, def: 1.5, label: "2. Multiplicador Saturación" },
+            "RECORTE_BITS": { min: 1, max: 8, step: 1, def: 4, label: "2. Bits a Conservar (1 a 8)" },
+            "SOLO_RECORTE": { min: 1, max: 8, step: 1, def: 4, label: "2. Bits a Conservar (1 a 8)" },
+            "RETRO_POSTERIZACION": { min: 2, max: 256, step: 1, def: 4, label: "2. Colores N (2 a 256)" },
+            "RETRO_2_R": { min: 2, max: 256, step: 1, def: 4, label: "2. Colores N (2 a 256)" },
+            "RETRO_2_G": { min: 2, max: 256, step: 1, def: 4, label: "2. Colores N (2 a 256)" },
+            "RETRO_2_B": { min: 2, max: 256, step: 1, def: 4, label: "2. Colores N (2 a 256)" },
+            "GRISES_RETRO": { min: 2, max: 256, step: 1, def: 4, label: "2. Tonos Grises (2 a 256)" },
+            "BOX_BLUR": { min: 3, max: 99, step: 2, def: 3, label: "2. Tamaño de Kernel (Impar)" }
+        };
+
+        let efectoSeleccionado = 'NINGUNO';
+
+        function showToast(mensaje, tipo = 'error') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            let icon = tipo === 'error' ? 'error_outline' : 'check_circle';
+
+            toast.innerHTML = `<span class="material-icons">${icon}</span> <span>${mensaje}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        function renderizarGrid(categoria) {
+            const grid = document.getElementById('filterGrid');
+            grid.innerHTML = '';
+            grid.style.animation = 'none';
+            grid.offsetHeight;
+            grid.style.animation = 'fadeIn 0.5s ease';
+
+            dataFiltros[categoria].forEach(f => {
+                const card = document.createElement('div');
+                card.className = `filter-card ${efectoSeleccionado === f.id ? 'selected' : ''}`;
+                card.onclick = () => seleccionarEfecto(f.id, card);
+                card.innerHTML = `
+                <span class="material-icons">${f.icon}</span>
+                <span class="label">${f.name}</span>
+            `;
+                grid.appendChild(card);
+            });
+        }
+
+        let categoriaActual = 'basicos';
+
+        function actualizarPreviewSource() {
+            const imgOrig = document.getElementById('imgOriginal');
+            const inputFoto = document.getElementById('inputFoto');
+            if (inputFoto.files && inputFoto.files.length > 0 && imgOrig.src && imgOrig.src !== '' && imgOrig.src !== window.location.href) {
+                imgOrig.style.display = 'block';
+            }
+        }
+
+        window.cambiarCategoria = function (categoria, btnElement) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            categoriaActual = categoria;
+
+            const esGenerador = categoria === 'generadores';
+            document.querySelector('.workspace').classList.toggle('modo-generador', esGenerador);
+            document.querySelector('.action-bar').classList.toggle('modo-generador', esGenerador);
+
+            if (!esGenerador) actualizarPreviewSource();
+
+            renderizarGrid(categoria);
+        };
+
+        window.seleccionarEfecto = function (id, cardElement) {
+            efectoSeleccionado = id;
+            document.querySelectorAll('.filter-card').forEach(c => c.classList.remove('selected'));
+            cardElement.classList.add('selected');
+
+            const regla = reglasValidacion[id];
+            const grupo = document.getElementById('grupoParametro');
+            const input = document.getElementById('inputParametro');
+            const lbl = document.getElementById('lblParametro');
+
+            if (regla) {
+                grupo.classList.remove('oculto');
+                lbl.innerText = regla.label;
+                input.min = regla.min;
+                input.max = regla.max;
+                input.step = regla.step;
+                input.value = regla.def;
+            } else {
+                grupo.classList.add('oculto');
+            }
+        };
+
+        renderizarGrid('basicos');
+        seleccionarEfecto('NINGUNO', document.querySelector('.filter-card'));
+
+        document.getElementById('inputFoto').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const imgOriginal = document.getElementById('imgOriginal');
+                if (imgOriginal.src && imgOriginal.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(imgOriginal.src);
+                }
+                imgOriginal.src = URL.createObjectURL(e.target.files[0]);
+                imgOriginal.onload = () => { imgOriginal.style.display = 'block'; };
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const inputFoto = document.getElementById('inputFoto');
+            if (inputFoto.files && inputFoto.files.length > 0) {
+                const imgOriginal = document.getElementById('imgOriginal');
+                imgOriginal.src = URL.createObjectURL(inputFoto.files[0]);
+                imgOriginal.onload = () => { imgOriginal.style.display = 'block'; };
+            }
+        });
+
+        document.getElementById('btnProcesar').addEventListener('click', async () => {
+            const inputFoto = document.getElementById('inputFoto');
+            const requiereImagen = !efectoSeleccionado.startsWith('GEN_');
+
+            if (requiereImagen && (!inputFoto.files || inputFoto.files.length === 0)) {
+                showToast("Seleccioná una imagen en el paso 1 primero.", "error");
+                return;
+            }
+
+            const regla = reglasValidacion[efectoSeleccionado];
+            const inputParametro = document.getElementById('inputParametro');
+            if (regla) {
+                const val = parseFloat(inputParametro.value);
+                if (isNaN(val) || val < regla.min || val > regla.max) {
+                    showToast(`El parámetro debe estar entre ${regla.min} y ${regla.max}.`, "error");
+                    return;
+                }
+                if (efectoSeleccionado === "BOX_BLUR" && val % 2 === 0) {
+                    showToast("Para Box Blur, el número de Kernel debe ser impar.", "error");
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            if (requiereImagen) formData.append("imagen", inputFoto.files[0]);
+            formData.append("efecto", efectoSeleccionado);
+            if (regla) formData.append("parametro", inputParametro.value);
+
+            const imgRes = document.getElementById('imgResultado');
+            const load = document.getElementById('loading');
+
+            imgRes.style.display = 'none';
+            load.style.display = 'flex';
+
+            try {
+                const respuesta = await fetch('/api/procesar', { method: 'POST', body: formData });
+                if (respuesta.ok) {
+                    const blob = await respuesta.blob();
+                    // Revocar URL anterior si existe
+                    if (imgRes.src && imgRes.src.startsWith('blob:')) URL.revokeObjectURL(imgRes.src);
+                    const urlResultado = URL.createObjectURL(blob);
+                    imgRes.src = urlResultado;
+                    imgRes.style.display = 'block';
+
+                    // Mostrar botón de descarga
+                    const btnDescargar = document.getElementById('btnDescargar');
+                    btnDescargar.style.display = 'flex';
+                    btnDescargar.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = urlResultado;
+                        a.download = `render_${efectoSeleccionado.toLowerCase()}_${Date.now()}.png`;
+                        a.click();
+                        showToast("¡Imagen descargada!", "success");
+                    };
+
+                    showToast("¡Renderizado exitoso!", "success");
+                } else {
+                    showToast("Error del servidor: " + await respuesta.text(), "error");
+                }
+            } catch (e) {
+                showToast("Error de conexión. ¿Está corriendo el servidor Java?", "error");
+            } finally {
+                load.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
