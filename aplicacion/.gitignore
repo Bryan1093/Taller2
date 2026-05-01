@@ -1,0 +1,22 @@
+# Maven - ignorar todo en target EXCEPTO el fat JAR
+target/
+!target/motor-grafico.jar
+
+# IDEs
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
