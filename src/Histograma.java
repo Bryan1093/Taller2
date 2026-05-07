@@ -45,6 +45,11 @@ public class Histograma {
             Graphics2D grB = buferAzul.createGraphics();
             Graphics2D grC = buferCombinado.createGraphics();
 
+            grR.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            grG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            grB.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            grC.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
             grR.setColor(Color.WHITE);
             grR.fillRect(0, 0, anchoHisto, altoHisto);
             grG.setColor(Color.WHITE);
@@ -78,17 +83,23 @@ public class Histograma {
             int max2 = maximo(histoG);
             int max3 = maximo(histoB);
 
-            float escalaX = (float) anchoHisto / 256;
-            float escalaY = (float) altoHisto / max;
-            float escalaY2 = (float) altoHisto / max2;
-            float escalaY3 = (float) altoHisto / max3;
+            int margenTop = 40;
+            int margenLateral = 20;
+            int margenBottom = 5;
+
+            float escalaX = (float) (anchoHisto - (2 * margenLateral)) / 255;
+            float escalaY = (float) (altoHisto - margenTop - margenBottom) / max;
+            float escalaY2 = (float) (altoHisto - margenTop - margenBottom) / max2;
+            float escalaY3 = (float) (altoHisto - margenTop - margenBottom) / max3;
 
             Polygon polyR = new Polygon();
-            polyR.addPoint(0, altoHisto);
+            polyR.addPoint(margenLateral, altoHisto - margenBottom);
             for (int i = 0; i < histoR.length; i++) {
-                polyR.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY * histoR[i]));
+                int x = margenLateral + (int) (escalaX * i);
+                int y = altoHisto - margenBottom - (int) (escalaY * histoR[i]);
+                polyR.addPoint(x, y);
             }
-            polyR.addPoint((int) (escalaX * 255), altoHisto);
+            polyR.addPoint(margenLateral + (int) (escalaX * 255), altoHisto - margenBottom);
 
             grR.setColor(new Color(255, 0, 0, 80));
             grR.fillPolygon(polyR);
@@ -98,20 +109,22 @@ public class Histograma {
             grR.setColor(Color.RED);
             grC.setColor(Color.RED);
             for (int i = 1; i < histoR.length; i++) {
-                int x1 = (int) (escalaX * (i - 1));
-                int y1 = altoHisto - (int) (escalaY * histoR[i - 1]);
-                int x2 = (int) (escalaX * i);
-                int y2 = altoHisto - (int) (escalaY * histoR[i]);
+                int x1 = margenLateral + (int) (escalaX * (i - 1));
+                int y1 = altoHisto - margenBottom - (int) (escalaY * histoR[i - 1]);
+                int x2 = margenLateral + (int) (escalaX * i);
+                int y2 = altoHisto - margenBottom - (int) (escalaY * histoR[i]);
                 grR.drawLine(x1, y1, x2, y2);
                 grC.drawLine(x1, y1, x2, y2);
             }
 
             Polygon polyG = new Polygon();
-            polyG.addPoint(0, altoHisto);
+            polyG.addPoint(margenLateral, altoHisto - margenBottom);
             for (int i = 0; i < histoG.length; i++) {
-                polyG.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY2 * histoG[i]));
+                int x = margenLateral + (int) (escalaX * i);
+                int y = altoHisto - margenBottom - (int) (escalaY2 * histoG[i]);
+                polyG.addPoint(x, y);
             }
-            polyG.addPoint((int) (escalaX * 255), altoHisto);
+            polyG.addPoint(margenLateral + (int) (escalaX * 255), altoHisto - margenBottom);
 
             grG.setColor(new Color(0, 255, 0, 80));
             grG.fillPolygon(polyG);
@@ -121,20 +134,22 @@ public class Histograma {
             grG.setColor(Color.GREEN);
             grC.setColor(Color.GREEN);
             for (int i = 1; i < histoG.length; i++) {
-                int x1 = (int) (escalaX * (i - 1));
-                int y1 = altoHisto - (int) (escalaY2 * histoG[i - 1]);
-                int x2 = (int) (escalaX * i);
-                int y2 = altoHisto - (int) (escalaY2 * histoG[i]);
+                int x1 = margenLateral + (int) (escalaX * (i - 1));
+                int y1 = altoHisto - margenBottom - (int) (escalaY2 * histoG[i - 1]);
+                int x2 = margenLateral + (int) (escalaX * i);
+                int y2 = altoHisto - margenBottom - (int) (escalaY2 * histoG[i]);
                 grG.drawLine(x1, y1, x2, y2);
                 grC.drawLine(x1, y1, x2, y2);
             }
 
             Polygon polyB = new Polygon();
-            polyB.addPoint(0, altoHisto);
+            polyB.addPoint(margenLateral, altoHisto - margenBottom);
             for (int i = 0; i < histoB.length; i++) {
-                polyB.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY3 * histoB[i]));
+                int x = margenLateral + (int) (escalaX * i);
+                int y = altoHisto - margenBottom - (int) (escalaY3 * histoB[i]);
+                polyB.addPoint(x, y);
             }
-            polyB.addPoint((int) (escalaX * 255), altoHisto);
+            polyB.addPoint(margenLateral + (int) (escalaX * 255), altoHisto - margenBottom);
 
             grB.setColor(new Color(0, 0, 255, 80));
             grB.fillPolygon(polyB);
@@ -144,20 +159,12 @@ public class Histograma {
             grB.setColor(Color.BLUE);
             grC.setColor(Color.BLUE);
             for (int i = 1; i < histoB.length; i++) {
-                int x1 = (int) (escalaX * (i - 1));
-                int y1 = altoHisto - (int) (escalaY3 * histoB[i - 1]);
-                int x2 = (int) (escalaX * i);
-                int y2 = altoHisto - (int) (escalaY3 * histoB[i]);
+                int x1 = margenLateral + (int) (escalaX * (i - 1));
+                int y1 = altoHisto - margenBottom - (int) (escalaY3 * histoB[i - 1]);
+                int x2 = margenLateral + (int) (escalaX * i);
+                int y2 = altoHisto - margenBottom - (int) (escalaY3 * histoB[i]);
                 grB.drawLine(x1, y1, x2, y2);
                 grC.drawLine(x1, y1, x2, y2);
-            }
-
-            Graphics2D[] graficos = { grR, grG, grB, grC };
-            for (Graphics2D g2 : graficos) {
-                g2.setColor(Color.BLACK);
-                g2.drawLine(0, altoHisto - 1, anchoHisto, altoHisto - 1);
-                g2.drawLine(0, 0, 0, altoHisto);
-                g2.dispose();
             }
 
             ImageIO.write(buferRojo, "jpg", file2);
