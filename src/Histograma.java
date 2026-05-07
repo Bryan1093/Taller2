@@ -83,9 +83,20 @@ public class Histograma {
             float escalaY2 = (float) altoHisto / max2;
             float escalaY3 = (float) altoHisto / max3;
 
+            Polygon polyR = new Polygon();
+            polyR.addPoint(0, altoHisto);
+            for (int i = 0; i < histoR.length; i++) {
+                polyR.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY * histoR[i]));
+            }
+            polyR.addPoint((int) (escalaX * 255), altoHisto);
+
+            grR.setColor(new Color(255, 0, 0, 80));
+            grR.fillPolygon(polyR);
+            grC.setColor(new Color(255, 0, 0, 80));
+            grC.fillPolygon(polyR);
+
             grR.setColor(Color.RED);
             grC.setColor(Color.RED);
-
             for (int i = 1; i < histoR.length; i++) {
                 int x1 = (int) (escalaX * (i - 1));
                 int y1 = altoHisto - (int) (escalaY * histoR[i - 1]);
@@ -95,9 +106,20 @@ public class Histograma {
                 grC.drawLine(x1, y1, x2, y2);
             }
 
+            Polygon polyG = new Polygon();
+            polyG.addPoint(0, altoHisto);
+            for (int i = 0; i < histoG.length; i++) {
+                polyG.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY2 * histoG[i]));
+            }
+            polyG.addPoint((int) (escalaX * 255), altoHisto);
+
+            grG.setColor(new Color(0, 255, 0, 80));
+            grG.fillPolygon(polyG);
+            grC.setColor(new Color(0, 255, 0, 80));
+            grC.fillPolygon(polyG);
+
             grG.setColor(Color.GREEN);
             grC.setColor(Color.GREEN);
-
             for (int i = 1; i < histoG.length; i++) {
                 int x1 = (int) (escalaX * (i - 1));
                 int y1 = altoHisto - (int) (escalaY2 * histoG[i - 1]);
@@ -107,9 +129,20 @@ public class Histograma {
                 grC.drawLine(x1, y1, x2, y2);
             }
 
+            Polygon polyB = new Polygon();
+            polyB.addPoint(0, altoHisto);
+            for (int i = 0; i < histoB.length; i++) {
+                polyB.addPoint((int) (escalaX * i), altoHisto - (int) (escalaY3 * histoB[i]));
+            }
+            polyB.addPoint((int) (escalaX * 255), altoHisto);
+
+            grB.setColor(new Color(0, 0, 255, 80));
+            grB.fillPolygon(polyB);
+            grC.setColor(new Color(0, 0, 255, 80));
+            grC.fillPolygon(polyB);
+
             grB.setColor(Color.BLUE);
             grC.setColor(Color.BLUE);
-
             for (int i = 1; i < histoB.length; i++) {
                 int x1 = (int) (escalaX * (i - 1));
                 int y1 = altoHisto - (int) (escalaY3 * histoB[i - 1]);
@@ -150,11 +183,10 @@ public class Histograma {
 
     private static int maximo(int[] h) {
 
-        // Ignoramos el 0 absoluto (negro) que en imágenes espaciales es gigante y achata el gráfico
-        int aux = h[1];
-        int indice = 1;
+        int aux = h[0];
+        int indice = 0;
 
-        for (int i = 1; i < h.length; i++) {
+        for (int i = 0; i < h.length; i++) {
 
             if (h[i] > aux) {
 
